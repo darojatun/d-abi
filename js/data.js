@@ -1,7 +1,7 @@
 export const CONFIG = {
   STORE_NAME: 'D`Abi Coffee & Resto',
-  EVENT_NAME: 'D`Abi Coffee & Resto🎉',
-  TAG_LINE: '🛋️Nongkrong 🍽️Makan 🥤Minum 🎤Karaoke 🎮Mabar 📺Nobar 📶Free WiFi',
+  EVENT_NAME: 'BERSAMA BEBYTE VERSI D`ABI',
+  TAG_LINE: 'Bangun! semangat baru setiap hari 💪',
   VERSION: 'D`Abi',
   MASCOT: 'assets/qr.dc.d-abi.png',
   LOGO: 'assets/d-abi-logo.png',
