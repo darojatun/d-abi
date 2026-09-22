@@ -482,16 +482,26 @@ window.printReceipt = (id) => {
     // Jadi lebar konten = 28, tiap baris dikasih 2 spasi di depan sebagai korban.
     const W = 28;
     const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const pad = (s) => '  ' + String(s).slice(0, W);
+    const vslice = (s, max) => { // potong teks berdasar lebar cetak (bukan .length) biar tak makan karakter
+        let w = 0, out = '';
+        for (const ch of String(s)) { const cp = ch.codePointAt(0); const cw = (cp === 0xFE0F || cp === 0xFE0E || cp === 0x200D || (cp >= 0x0300 && cp <= 0x036F)) ? 0 : ((cp < 0x1100 || (cp >= 0x2000 && cp <= 0x206F)) ? 1 : 2); if (w + cw > max) break; out += ch; w += cw; }
+        return out;
+    };
+    const pad = (s) => '  ' + vslice(s, W);
+    const dlen = (s) => { // lebar sel monospace printer (JS .length menipu untuk emoji): emoji/simbol lebar = 2, VS16/ZWJ/gabung = 0
+        let w = 0;
+        for (const ch of String(s)) { const cp = ch.codePointAt(0); if (cp === 0xFE0F || cp === 0xFE0E || cp === 0x200D || (cp >= 0x0300 && cp <= 0x036F)) continue; w += (cp < 0x1100 || (cp >= 0x2000 && cp <= 0x206F)) ? 1 : 2; }
+        return w;
+    };
     const cleanRp = (v) => fmt(Number(v) || 0).replace(/\u00A0/g, ' ');
     const hr = (ch = '=') => esc(pad(ch.repeat(W)));
-    const center = (t) => { t = String(t).slice(0, W); const sp = Math.max(0, Math.floor((W - t.length) / 2)); return esc(pad(' '.repeat(sp) + t)); };
-    const row = (l, r) => { l = String(l); r = String(r); let space = W - l.length - r.length; if (space < 1) { l = l.slice(0, W - r.length - 1); space = 1; } return esc(pad(l + ' '.repeat(space) + r)); };
-    const rowBold = (l, r) => { l = String(l); r = String(r); let space = W - l.length - r.length; if (space < 1) { l = l.slice(0, W - r.length - 1); space = 1; } return '<b>' + esc(pad(l + ' '.repeat(space) + r)) + '</b>'; };
-    const rowRightBold = (l, r) => { l = String(l); r = String(r); let space = W - l.length - r.length; if (space < 1) { l = l.slice(0, W - r.length - 1); space = 1; } return esc('  ' + l + ' '.repeat(space)) + '<b>' + esc(r) + '</b>'; };
+    const center = (t) => { t = String(t).slice(0, W); const sp = Math.max(0, Math.floor((W - dlen(t)) / 2)); return esc(pad(' '.repeat(sp) + t)); };
+    const row = (l, r) => { l = String(l); r = String(r); let space = W - dlen(l) - dlen(r); if (space < 1) { l = vslice(l, W - dlen(r) - 1); space = W - dlen(l) - dlen(r); if (space < 1) space = 1; } return esc(pad(l + ' '.repeat(space) + r)); };
+    const rowBold = (l, r) => { l = String(l); r = String(r); let space = W - dlen(l) - dlen(r); if (space < 1) { l = vslice(l, W - dlen(r) - 1); space = W - dlen(l) - dlen(r); if (space < 1) space = 1; } return '<b>' + esc(pad(l + ' '.repeat(space) + r)) + '</b>'; };
+    const rowRightBold = (l, r) => { l = String(l); r = String(r); let space = W - dlen(l) - dlen(r); if (space < 1) { l = vslice(l, W - dlen(r) - 1); space = W - dlen(l) - dlen(r); if (space < 1) space = 1; } return esc('  ' + l + ' '.repeat(space)) + '<b>' + esc(r) + '</b>'; };
     const wrap = (t, prefix = '') => { // bungkus teks panjang ke lebar W
         const words = String(t).split(' '); const lines = []; let cur = prefix;
-        words.forEach(w => { if ((cur + (cur === prefix ? '' : ' ') + w).length > W) { lines.push(pad(cur)); cur = prefix + w; } else { cur = cur === prefix ? cur + w : cur + ' ' + w; } });
+        words.forEach(w => { if (dlen(cur + (cur === prefix ? '' : ' ') + w) > W) { lines.push(pad(cur)); cur = prefix + w; } else { cur = cur === prefix ? cur + w : cur + ' ' + w; } });
         if (cur.trim()) lines.push(pad(cur)); return esc(lines.join('\n'));
     };
     const store = (CONFIG && CONFIG.STORE_NAME) ? CONFIG.STORE_NAME : 'BeByte';
@@ -517,8 +527,8 @@ window.printReceipt = (id) => {
     let custQueueLine;
     {
         let l = custLeftRaw; const r = queueRight;
-        let space = W - l.length - r.length;
-        if (space < 1) { l = l.slice(0, W - r.length - 1); space = 1; }
+        let space = W - dlen(l) - dlen(r);
+        if (space < 1) { l = vslice(l, W - dlen(r) - 1); space = W - dlen(l) - dlen(r); if (space < 1) space = 1; }
         custQueueLine = esc('  ' + l + ' '.repeat(space)) + '<b>' + esc(r) + '</b>';
     }
     let receiptHead = '';
