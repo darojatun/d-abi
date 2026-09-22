@@ -69,13 +69,10 @@ export const MENU = [
       { name: 'Emping Melinjo', nickname: 'EMPING', desc: 'Emping melinjo gurih', active: true },
       { name: 'Keripik Sambal', nickname: 'KRIPIK 🌶️', desc: 'Keripik sambal pedas', active: true },
       { name: 'Kerupuk Udang', nickname: 'KRUPUK 🍤', desc: 'Kerupuk udang renyah', active: true },
-      { name: 'Kerupuk Jengkol', nickname: 'JENGKOL', desc: 'Kerupuk jengkol gurih', active: true },
       { name: 'Rempeyek', nickname: 'REMPEYEK 🥜', desc: 'Rempeyek kacang renyah', active: true },
       { name: 'Kacang Goreng', nickname: 'KACANG 🥜', desc: 'Kacang goreng gurih', active: true },
       { name: 'Kue Bawang', nickname: 'KUEBAWANG 🧅', desc: 'Kue bawang renyah', active: true },
-      { name: 'Kerupuk Jangek', nickname: 'JANGEK', desc: 'Kerupuk jangek gurih', active: true },
-      { name: 'Alen-alen', nickname: 'ALEN', desc: 'Alen-alen gurih', active: false },
-      { name: 'Kacang Tojen', nickname: 'TOJEN 🥜', desc: 'Kacang tojen gurih', active: true }
+      { name: 'Kerupuk Jangek', nickname: 'JANGEK', desc: 'Kerupuk jangek gurih', active: true }
     ]
   },
   // ===== GRATIS =====
