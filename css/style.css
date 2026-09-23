@@ -56,6 +56,9 @@ body {
 .card-pop:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
 .card-pop:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); }
 
+/* Kilat kuning saat qty item lama ditambah dari kartu menu */
+.cart-flash { background-color: #FEF9C3 !important; }
+
 .custom-scroll::-webkit-scrollbar { width: 8px; }
 .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
 .custom-scroll::-webkit-scrollbar-thumb { background: #6D28D9; border-radius: 4px; }

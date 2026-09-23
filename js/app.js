@@ -167,6 +167,8 @@ function addToCart(item, variantName, quantity = 1) {
     if (variantName && item.variants) { const vData = item.variants.find(v => v.name === variantName); if(vData) { finalName = `${item.name} (${vData.name})`; finalNick = vData.nickname || finalName; } } 
     if(exist) { exist.qty += quantity; } else { cart.push({ id: item.id, name: finalName, nickname: finalNick, price: item.price, variant: variantName, qty: quantity }); } 
     updateCart(); 
+    if (exist) flashCartRow(item.id, variantName); // tambah qty item lama: tunjukkan barisnya
+    else els.cartList.scrollTop = els.cartList.scrollHeight; // item baru: langsung kelihatan di bawah
     const badge = document.getElementById('cart-count');
     badge.classList.remove('animate-bounce-short'); void badge.offsetWidth; badge.classList.add('animate-bounce-short');
 }
@@ -180,7 +182,18 @@ window.updateQty = (id, v, d) => { playSound('click'); const vKey = v === 'null'
 function updateCart() { 
     localStorage.setItem('cart_temp', JSON.stringify(cart)); els.cartCount.textContent = cart.reduce((a,b)=>a+b.qty,0) + " Items"; els.total.textContent = fmt(cart.reduce((a,b)=>a+(b.price*b.qty),0)); 
     if(cart.length === 0) els.cartList.innerHTML = `<div class="text-center py-6 opacity-50 text-sm font-bold italic">Keranjang Kosong</div>`;
-    else els.cartList.innerHTML = cart.map(i => `<div class="flex justify-between items-center bg-white p-2 rounded border-2 border-black mb-2 shadow-sm group hover:shadow-md transition"><div class="flex-1 pr-2"><div class="flex items-center gap-2"><button onclick="removeCartItem(${i.id}, '${i.variant}')" class="text-gray-300 hover:text-red-500 transition" title="Hapus Item">❌</button><div class="font-bold text-sm leading-tight">${i.nickname || i.name}</div></div><div class="text-xs text-gray-500 pl-6">${fmt(i.price)} x ${i.qty}</div></div><div class="flex items-center gap-1"><button onclick="updateQty(${i.id},'${i.variant}',-1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">-</button><button onclick="editCartQty(${i.id}, '${i.variant}', ${i.qty})" class="min-w-[1.5rem] px-1 h-6 text-center text-sm font-bold bg-white border border-gray-300 rounded hover:bg-yellow-100 transition">${i.qty}</button><button onclick="updateQty(${i.id},'${i.variant}',1)" class="w-6 h-6 bg-bebyte-purple text-white rounded font-bold hover:bg-purple-700">+</button></div></div>`).join('');
+    else els.cartList.innerHTML = cart.map(i => `<div data-cart-key="${i.id}__${i.variant}" class="flex justify-between items-center bg-white p-2 rounded border-2 border-black mb-2 shadow-sm group hover:shadow-md transition"><div class="flex-1 pr-2"><div class="flex items-center gap-2"><button onclick="removeCartItem(${i.id}, '${i.variant}')" class="text-gray-300 hover:text-red-500 transition" title="Hapus Item">❌</button><div class="font-bold text-sm leading-tight">${i.nickname || i.name}</div></div><div class="text-xs text-gray-500 pl-6">${fmt(i.price)} x ${i.qty}</div></div><div class="flex items-center gap-1"><button onclick="updateQty(${i.id},'${i.variant}',-1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">-</button><button onclick="editCartQty(${i.id}, '${i.variant}', ${i.qty})" class="min-w-[1.5rem] px-1 h-6 text-center text-sm font-bold bg-white border border-gray-300 rounded hover:bg-yellow-100 transition">${i.qty}</button><button onclick="updateQty(${i.id},'${i.variant}',1)" class="w-6 h-6 bg-bebyte-purple text-white rounded font-bold hover:bg-purple-700">+</button></div></div>`).join('');
+}
+
+function flashCartRow(id, v) {
+    const rowEl = els.cartList.querySelector(`[data-cart-key="${id}__${v}"]`);
+    if (!rowEl) return;
+    // gulir dalam kotak saja (halaman tidak ikut geser), hanya bila baris di luar pandang
+    const rel = rowEl.offsetTop - els.cartList.offsetTop;
+    if (rel < els.cartList.scrollTop) els.cartList.scrollTop = Math.max(0, rel - 8);
+    else if (rel + rowEl.offsetHeight > els.cartList.scrollTop + els.cartList.clientHeight) els.cartList.scrollTop = rel + rowEl.offsetHeight - els.cartList.clientHeight + 8;
+    rowEl.classList.add('cart-flash');
+    setTimeout(() => rowEl.classList.remove('cart-flash'), 900);
 }
 
 // --- TABLET NUMPAD LOGIC ---
